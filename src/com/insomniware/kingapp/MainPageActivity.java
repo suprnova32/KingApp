@@ -2,11 +2,12 @@ package com.insomniware.kingapp;
 
 import java.util.Locale;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.GpsStatus.NmeaListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -34,17 +35,21 @@ public class MainPageActivity extends FragmentActivity {
 	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
-	private GoogleMap mMap; 
+	private static final int FIVE_MINUTES = 1000 * 60 * 5;
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
 	 */
 	ViewPager mViewPager;
+	
+	public static LocationManager locationManager;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_page);
+		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the app.
@@ -54,34 +59,25 @@ public class MainPageActivity extends FragmentActivity {
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
-		
-		setUpMapIfNeeded();
-		
-		
-		//mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+		// Register the listener with the Location Manager to receive location updates
+//		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, FIVE_MINUTES, 500, locationListener);
 
 	}
 	
-	private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-        	SupportMapFragment mMapFragment = SupportMapFragment.newInstance();
-    		FragmentTransaction fragmentTransaction =
-    		         getSupportFragmentManager().beginTransaction();
-    		fragmentTransaction.add(R.id.pager, mMapFragment);
-    		fragmentTransaction.commit();
-    		mMap = mMapFragment.getMap();            
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap(); 
-            }
-        }
-    }
+	@Override
+	protected void onPause() {
+		super.onPause();
+		locationManager.removeUpdates(LocationFragment.localLocationListener);		
+	}
 	
-	private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-    }
+	@Override
+	protected void onResume() {
+		super.onResume();
+		locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, LocationFragment.localLocationListener, null);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, FIVE_MINUTES, 500, LocationFragment.localLocationListener);
+		
+	}
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
