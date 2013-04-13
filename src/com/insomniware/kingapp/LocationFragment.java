@@ -7,19 +7,24 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 public class LocationFragment extends Fragment {
 	
-	private static GoogleMap mMap;
+	public static GoogleMap mMap;
 	private SupportMapFragment mMapFragment;
-	private static final int ONE_MINUTE = 1000 * 60;
+	static final int ONE_MINUTE = 1000 * 60;
 	
 	public static LocationListener localLocationListener = new LocationListener() {
 
@@ -43,14 +48,20 @@ public class LocationFragment extends Fragment {
 	@Override  
     public void onCreate(Bundle savedInstanceState) {  
         super.onCreate(savedInstanceState);
-        
     }
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		MainPageActivity.locationManager.removeUpdates(localLocationListener);		
+	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
+		setUpMapIfNeeded();
 		MainPageActivity.locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, localLocationListener, null);
-		
+		MainPageActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ONE_MINUTE, 500, localLocationListener);
 	}
 	
 	private void setUpMapIfNeeded() {
@@ -61,15 +72,29 @@ public class LocationFragment extends Fragment {
         	mMap = mMapFragment.getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap(); 
+                setUpMap("First setup");
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(14f));
             }
+        } else {
+        	setUpMap("Another setup");
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(14f));        	
         }
     }
 	
-	private void setUpMap() {		
-        //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+	public void forceMapReload(FragmentManager manager) {
+		mMapFragment = (SupportMapFragment) manager.findFragmentById(R.id.map);
+		if(mMapFragment != null){
+			mMap = mMapFragment.getMap();
+	    	setUpMap("Forced reload");			
+		}
+        //mMap.animateCamera(CameraUpdateFactory.zoomTo(14f));
+		
+	}
+	
+	public static void setUpMap(String mes) {
+		Log.e("Map Activity", mes);
         mMap.setMyLocationEnabled(true);
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15f));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(14f));
         mMap.setOnMyLocationChangeListener(new OnMyLocationChangeListener() {
 			
 			@Override
@@ -78,14 +103,19 @@ public class LocationFragment extends Fragment {
 			}
 		});
         
-        MainPageActivity.locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, localLocationListener, null);
-        MainPageActivity.locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, ONE_MINUTE, 500, localLocationListener);
+        markMap(mMap);       
     }
 	
-	private static void updateMap(Location location){
+	private static void updateMap(Location location) {
 		Location myLocation = location;
         mMap.animateCamera(CameraUpdateFactory.newLatLng(
-        		new LatLng( myLocation.getLatitude(), myLocation.getLongitude())));		
+        		new LatLng(myLocation.getLatitude(), myLocation.getLongitude())));
+	}
+	
+	private static void markMap(GoogleMap map) {
+		
+		mMap.addMarker(new MarkerOptions().position(new LatLng(48.7754181, 9.1817588)).title("First Marker"));
+		
 	}
 	
 	
@@ -96,6 +126,8 @@ public class LocationFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_location_layout,
 				container, false);
 		setUpMapIfNeeded();
+		MainPageActivity.locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, localLocationListener, null);
+        MainPageActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ONE_MINUTE, 500, localLocationListener);
 		
 		return rootView;
 	}

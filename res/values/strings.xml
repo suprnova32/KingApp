@@ -3,8 +3,11 @@
 
     <string name="app_name">KingApp</string>
     <string name="action_settings">Settings</string>
-    <string name="title_section1">Hidden Stuff</string>
+    <string name="hidden_stuff">Hidden Stuff</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
+    <string name="user_info">About you</string>
+    <string name="log_out">Log out</string>
+    <string name="reload">Reload map</string>
 
 </resources>
