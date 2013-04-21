@@ -1,4 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item
+        android:id="@+id/action_refresh"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_refresh"
+        android:title="@string/refresh"/>
 
     <item
         android:id="@+id/action_settings"
@@ -10,6 +17,7 @@
         android:id="@+id/log_out"
         android:orderInCategory="300"
         android:title="@string/log_out" />
+   
     <item 
         android:id="@+id/reload"
         android:orderInCategory="100"
