@@ -2,32 +2,19 @@ package com.insomniware.kingapp;
 
 import java.util.Locale;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
-
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.GpsStatus.NmeaListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainPageActivity extends FragmentActivity {
@@ -44,7 +31,10 @@ public class MainPageActivity extends FragmentActivity {
 	private static final int FIVE_MINUTES = 1000 * 60 * 5;
 	private static boolean KILL = false;
 	public static final String PREFS_NAME = "com.insomniware.kingapp";
-	public static String auth_token; 
+	public static String auth_token;
+	public static String email;
+	private MenuItem menuItem;
+	Fragment[] fragments = new Fragment[]{new InfoFragment(), new LocationFragment()};
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -59,6 +49,7 @@ public class MainPageActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 		auth_token = settings.getString("token", null);
+		email = settings.getString("email", null); 
 		loginDataCheck(auth_token);
 		setContentView(R.layout.activity_main_page);
 		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -125,6 +116,13 @@ public class MainPageActivity extends FragmentActivity {
 	        KILL = true;
 	    	finish();
 	        break;
+	    case R.id.action_refresh:
+	    	menuItem = item;
+	        menuItem.setActionView(R.layout.reload_progress);
+	        menuItem.expandActionView();
+	        ReloadTask task = new ReloadTask();
+	        task.execute((Void) null);
+	        break;
 	    case R.id.reload:
 	    	new LocationFragment().forceMapReload(getSupportFragmentManager());	
 	        break;
@@ -159,6 +157,41 @@ public class MainPageActivity extends FragmentActivity {
         }
         return false;		
 	}
+	
+	/**
+	 * Represents an asynchronous login/registration task used to authenticate
+	 * the user.
+	 */
+	public class ReloadTask extends AsyncTask<Void, Void, Boolean> {
+		
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			
+			try {
+	    		((InfoFragment) fragments[0]).fetchUserInformation();
+	    		new LocationFragment().forceMapReload(getSupportFragmentManager());
+	    	} catch (Exception e) {
+	    		e.printStackTrace();
+	    		//Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_LONG).show();	    			    		
+	    	}
+			
+			
+			return true;
+		}
+
+		@Override
+		protected void onPostExecute(final Boolean status) {
+			menuItem.collapseActionView();
+			menuItem.setActionView(null);			
+		}
+
+		@Override
+		protected void onCancelled() {
+			menuItem.collapseActionView();
+			menuItem.setActionView(null);
+			
+		}
+	}
 
 	/**
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -169,7 +202,6 @@ public class MainPageActivity extends FragmentActivity {
 		public SectionsPagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
-		Fragment[] fragments = new Fragment[]{new InfoFragment(), new LocationFragment()};
 
 		@Override
 		public Fragment getItem(int position) {
@@ -196,7 +228,7 @@ public class MainPageActivity extends FragmentActivity {
 			case 1:
 				return getString(R.string.hidden_stuff).toUpperCase(l);
 			case 2:
-				return getString(R.string.title_section3).toUpperCase(l);
+				return getString(R.string.check_in).toUpperCase(l);
 			}
 			return null;
 		}
