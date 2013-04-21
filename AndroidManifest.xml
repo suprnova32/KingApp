@@ -52,19 +52,32 @@
             android:name="com.insomniware.kingapp.LoginActivity"
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" >
-            
+
             <!-- android:parentActivityName="com.insomniware.kingapp.MainPageActivity" -->
-            <!-- <meta-data
+            <!--
+                 <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.insomniware.kingapp.MainPageActivity" /> -->
+                android:value="com.insomniware.kingapp.MainPageActivity" />
+            -->
         </activity>
         <activity
             android:name="com.insomniware.kingapp.SettingsActivity"
             android:label="@string/title_activity_settings" >
-            <!-- android:parentActivityName="com.insomniware.kingapp.MainPageActivity" >
+
+            <!--
+            android:parentActivityName="com.insomniware.kingapp.MainPageActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.insomniware.kingapp.MainPageActivity" /> -->
+                android:value="com.insomniware.kingapp.MainPageActivity" />
+            -->
+        </activity>
+        <activity
+            android:name="com.insomniware.kingapp.CheckInActivity"
+            android:label="@string/title_activity_check_in"
+            android:parentActivityName="com.insomniware.kingapp.MainPageActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.insomniware.kingapp.MainPageActivity" />
         </activity>
     </application>
 
