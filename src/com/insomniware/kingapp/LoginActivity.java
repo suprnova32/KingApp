@@ -1,19 +1,41 @@
 package com.insomniware.kingapp;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.zip.GZIPInputStream;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.Header;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
@@ -22,13 +44,7 @@ import android.support.v4.app.NavUtils;
  * well.
  */
 public class LoginActivity extends Activity {
-	/**
-	 * A dummy authentication store containing known user names and passwords.
-	 * TODO: remove after connecting to a real authentication system.
-	 */
-	private static final String[] DUMMY_CREDENTIALS = new String[] {
-			"foo@example.com:hello", "bar@example.com:world" };
-
+	
 	/**
 	 * The default email to populate the email field with.
 	 */
@@ -112,8 +128,6 @@ public class LoginActivity extends Activity {
 //			//
 //			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
 //			//
-//			// TODO: If Settings has multiple levels, Up should navigate up
-//			// that hierarchy.
 //			NavUtils.navigateUpFromSameTask(this);
 //			return true;
 //		}
@@ -224,49 +238,109 @@ public class LoginActivity extends Activity {
 			mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
 		}
 	}
+	
+	private String convertStreamToString(InputStream is) {
+	    String line = "";
+	    StringBuilder total = new StringBuilder();
+	    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+	    try {
+	        while ((line = rd.readLine()) != null) {
+	            total.append(line);
+	        }
+	    } catch (Exception e) {
+	    	Toast.makeText(this, "Stream Exception", Toast.LENGTH_SHORT).show();
+	    }
+	    return total.toString();
+	}
+	
 
 	/**
 	 * Represents an asynchronous login/registration task used to authenticate
 	 * the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+	public class UserLoginTask extends AsyncTask<Void, Void, Integer> {
 		@Override
-		protected Boolean doInBackground(Void... params) {
-			// TODO: attempt authentication against a network service.
-
+		protected Integer doInBackground(Void... params) {
+			
+			JSONObject jsonobj = new JSONObject();
+			DefaultHttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppostreq = new HttpPost("http://192.168.1.149:3000/api/v1/tokens.json");
+			StringEntity se;
+			
 			try {
-				// Simulate network access.
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				return false;
-			}
-
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					if (pieces[1].equals(mPassword)){
-						MainPageActivity.auth_token = "authorized";
-						return true;						
+				jsonobj.put("email", mEmail);
+				jsonobj.put("password", mPassword);
+				se = new StringEntity(jsonobj.toString());
+				se.setContentType("application/json;charset=UTF-8");
+				se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
+				httppostreq.setEntity(se);
+				HttpResponse httpresponse = httpclient.execute(httppostreq);
+				HttpEntity resultentity = httpresponse.getEntity();
+				InputStream inputstream = resultentity.getContent();
+				Header contentencoding = httpresponse.getFirstHeader("Content-Encoding");
+				if(contentencoding != null && contentencoding.getValue().equalsIgnoreCase("gzip")) {
+					inputstream = new GZIPInputStream(inputstream);
+				}
+				String resultstring = convertStreamToString(inputstream);
+				Log.e("JSON Received", resultstring);
+				inputstream.close();
+				JSONObject recvdjson = new JSONObject(resultstring);
+				if (recvdjson.has("token")){
+					String token = recvdjson.getString("token");
+					if (token != null && token != "") {
+						MainPageActivity.auth_token = token;
+						SharedPreferences settings = getSharedPreferences(MainPageActivity.PREFS_NAME, 0);
+						SharedPreferences.Editor editor = settings.edit();
+						editor.putString("email", mEmail);
+						editor.putString("token", token);	
+						editor.commit();
+						//new InfoFragment().fetchUserInformation();
+						return 0;					
+					}					
+				}
+				if (recvdjson.has("message")) {
+					String message = recvdjson.getString("message");
+					if (message.contentEquals("Invalid email")) {
+						return 1;
+					} else if (message.contentEquals("Invalid password")) {
+						return 2;
 					}
 				}
+				
+			} catch (JSONException ex) {
+				ex.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return 3;
 			}
-
-			// TODO: register the new account here.
-			return false;
+			return 3;
 		}
 
 		@Override
-		protected void onPostExecute(final Boolean success) {
+		protected void onPostExecute(final Integer status) {
 			mAuthTask = null;
 			showProgress(false);
-
-			if (success) {
-				finish();
-			} else {
-				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
-				mPasswordView.requestFocus();
+			
+			switch(status) {
+				case 0: 
+					finish();
+					break;
+				case 1: 
+					mEmailView.setError(getString(R.string.error_invalid_email));
+					mEmailView.requestFocus();
+					break;
+				case 2:
+					mPasswordView.setError(getString(R.string.error_incorrect_password));
+					mPasswordView.requestFocus();
+					break;
+				case 3:
+					mEmailView.setError("Server Unavailable!");
+					mEmailView.requestFocus();
+					break;				
 			}
 		}
 
