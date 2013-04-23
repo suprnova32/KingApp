@@ -150,6 +150,10 @@ public class MainPageActivity extends FragmentActivity {
        
     }
 	
+	private void showError(){
+		Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_LONG).show();
+	}
+	
 	private boolean loginDataCheck(String token){
 		if((token == null)){
         	Intent i = new Intent(this, LoginActivity.class);
@@ -172,7 +176,7 @@ public class MainPageActivity extends FragmentActivity {
 	    		new LocationFragment().forceMapReload(getSupportFragmentManager());
 	    	} catch (Exception e) {
 	    		e.printStackTrace();
-	    		//Toast.makeText(this, "There was an error, please try again", Toast.LENGTH_LONG).show();	    			    		
+	    		showError();	    			    		
 	    	}
 			
 			

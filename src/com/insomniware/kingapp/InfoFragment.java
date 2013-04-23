@@ -203,18 +203,19 @@ public class InfoFragment extends Fragment {
 		protected void onPostExecute(final Boolean status) {
 			
 			mInfoTask = null;
-			try {
-				mUserName.setText(user.getString("name"));
-				mEmail.setText(user.getString("email"));
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}			
+			if(status){
+				try {
+					mUserName.setText(user.getString("name"));
+					mEmail.setText(user.getString("email"));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}								
+			}
 			showProgress(false);
 			
-			if(status){
-												
-			}
+			
+			
 		}
 
 		@Override
