@@ -51,6 +51,8 @@ public class MainPageActivity extends FragmentActivity {
 		auth_token = settings.getString("token", null);
 		email = settings.getString("email", null); 
 		loginDataCheck(auth_token);
+		if (auth_token != null)
+			((InfoFragment) fragments[0]).fetchUserInformation();
 		setContentView(R.layout.activity_main_page);
 		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
@@ -62,7 +64,7 @@ public class MainPageActivity extends FragmentActivity {
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
-		Toast.makeText(this, auth_token, Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, auth_token, Toast.LENGTH_LONG).show();
 		if(LocationFragment.mMap == null){
 			FragmentManager manager = getSupportFragmentManager();
 			new LocationFragment().forceMapReload(manager);
@@ -176,7 +178,7 @@ public class MainPageActivity extends FragmentActivity {
 	    		new LocationFragment().forceMapReload(getSupportFragmentManager());
 	    	} catch (Exception e) {
 	    		e.printStackTrace();
-	    		showError();	    			    		
+	    		return false;	    			    		
 	    	}
 			
 			
@@ -185,6 +187,8 @@ public class MainPageActivity extends FragmentActivity {
 
 		@Override
 		protected void onPostExecute(final Boolean status) {
+			if(!status)
+				showError();
 			menuItem.collapseActionView();
 			menuItem.setActionView(null);			
 		}
