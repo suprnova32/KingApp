@@ -50,15 +50,15 @@ public class LocationFragment extends Fragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		MainPageActivity.locationManager.removeUpdates(localLocationListener);		
+		//MainPageActivity.locationManager.removeUpdates(localLocationListener);		
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
-		setUpMapIfNeeded();
-		MainPageActivity.locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, localLocationListener, null);
-		MainPageActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ONE_MINUTE, 500, localLocationListener);
+		forceMapReload(getFragmentManager());
+		//MainPageActivity.locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, localLocationListener, null);
+		//MainPageActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, ONE_MINUTE, 500, localLocationListener);
 	}
 	
 	private void setUpMapIfNeeded() {
@@ -92,13 +92,13 @@ public class LocationFragment extends Fragment {
 		Log.e("Map Activity", mes);
         mMap.setMyLocationEnabled(true);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(14f));
-        mMap.setOnMyLocationChangeListener(new OnMyLocationChangeListener() {
-			
-			@Override
-			public void onMyLocationChange(Location location) {
-				updateMap(location);				
-			}
-		});
+//        mMap.setOnMyLocationChangeListener(new OnMyLocationChangeListener() {
+//			
+//			@Override
+//			public void onMyLocationChange(Location location) {
+//				updateMap(location);				
+//			}
+//		});
         
         markMap(mMap);       
     }
