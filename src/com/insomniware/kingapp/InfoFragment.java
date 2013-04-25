@@ -39,6 +39,14 @@ public class InfoFragment extends Fragment {
     }
 	
 	@Override
+	public void onResume(){
+		super.onResume();
+		if (MainPageActivity.auth_token != null)
+			fetchUserInformation();
+		
+	}
+	
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		LinearLayout wrapper = new LinearLayout(getActivity());
@@ -49,9 +57,11 @@ public class InfoFragment extends Fragment {
 		mInfoStatusView = wrapper.findViewById(R.id.info_status);
 		mUserName = (TextView) wrapper.findViewById(R.id.user_name);
 		mEmail = (TextView) wrapper.findViewById(R.id.your_email);
+		if (MainPageActivity.auth_token != null)
+			fetchUserInformation();
 		
-		Button qr_scan = (Button) wrapper.findViewById(R.id.check_in_button);
-		qr_scan.setOnClickListener(new OnClickListener() {
+		Button check_in = (Button) wrapper.findViewById(R.id.check_in_button);
+		check_in.setOnClickListener(new OnClickListener() {
         	@Override
 			public void onClick(View view) {
         		Intent i = new Intent(getActivity(), CheckInActivity.class);

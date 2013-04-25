@@ -39,7 +39,7 @@
         <RelativeLayout
             android:id="@+id/RelativeLayout1"
             style="@style/LoginFormContainer"
-            android:layout_height="400dp"
+            android:layout_height="441dp"
             android:orientation="vertical" >
 
             <Button
@@ -83,6 +83,14 @@
                 android:layout_toRightOf="@+id/user_name"
                 android:text="Small Text"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <ListView
+                android:id="@+id/locations_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true" >
+            </ListView>
             
         </RelativeLayout>
     </ScrollView>

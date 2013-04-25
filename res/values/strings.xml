@@ -16,7 +16,7 @@
     <string name="title_activity_check_in">Check In</string>
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="check_in_title">Please choose a check in method</string>
     <string name="refresh">Refresh</string>
 
 </resources>
