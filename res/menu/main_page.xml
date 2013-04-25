@@ -17,10 +17,5 @@
         android:id="@+id/log_out"
         android:orderInCategory="300"
         android:title="@string/log_out" />
-   
-    <item 
-        android:id="@+id/reload"
-        android:orderInCategory="100"
-        android:title="@string/reload" />
 
 </menu>
