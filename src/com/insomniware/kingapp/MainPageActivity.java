@@ -51,8 +51,6 @@ public class MainPageActivity extends FragmentActivity {
 		auth_token = settings.getString("token", null);
 		email = settings.getString("email", null); 
 		loginDataCheck(auth_token);
-		if (auth_token != null)
-			((InfoFragment) fragments[0]).fetchUserInformation();
 		setContentView(R.layout.activity_main_page);
 		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
@@ -122,11 +120,14 @@ public class MainPageActivity extends FragmentActivity {
 	    	menuItem = item;
 	        menuItem.setActionView(R.layout.reload_progress);
 	        menuItem.expandActionView();
+	        try{
+	        	((InfoFragment) fragments[0]).fetchUserInformation();
+	        	new LocationFragment().forceMapReload(getSupportFragmentManager());
+	        } catch (Exception e){
+	        	showError();	        	
+	        }
 	        ReloadTask task = new ReloadTask();
 	        task.execute((Void) null);
-	        break;
-	    case R.id.reload:
-	    	new LocationFragment().forceMapReload(getSupportFragmentManager());	
 	        break;
 	    default:
 	        return super.onOptionsItemSelected(item);
@@ -165,8 +166,8 @@ public class MainPageActivity extends FragmentActivity {
 	}
 	
 	/**
-	 * Represents an asynchronous login/registration task used to authenticate
-	 * the user.
+	 * Represents an asynchronous reload task used refresh
+	 * the user's info.
 	 */
 	public class ReloadTask extends AsyncTask<Void, Void, Boolean> {
 		
@@ -174,8 +175,7 @@ public class MainPageActivity extends FragmentActivity {
 		protected Boolean doInBackground(Void... params) {
 			
 			try {
-	    		((InfoFragment) fragments[0]).fetchUserInformation();
-	    		new LocationFragment().forceMapReload(getSupportFragmentManager());
+	    		
 	    	} catch (Exception e) {
 	    		e.printStackTrace();
 	    		return false;	    			    		
