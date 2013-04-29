@@ -18,5 +18,6 @@
     <string name="title_section2">Section 2</string>
     <string name="check_in_title">Please choose a check in method</string>
     <string name="refresh">Refresh</string>
+    <string name="check_in_progress">Checking in</string>
 
 </resources>
