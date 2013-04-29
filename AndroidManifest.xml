@@ -41,7 +41,8 @@
         <activity
             android:name="com.insomniware.kingapp.MainPageActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,6 +53,7 @@
             android:name="com.insomniware.kingapp.LoginActivity"
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible"
+            android:screenOrientation="portrait"
 			android:parentActivityName="com.insomniware.kingapp.MainPageActivity">
             <meta-data
            		android:name="android.support.PARENT_ACTIVITY"
@@ -60,6 +62,7 @@
         <activity
             android:name="com.insomniware.kingapp.SettingsActivity"
             android:label="@string/title_activity_settings"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.insomniware.kingapp.MainPageActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -68,6 +71,7 @@
         <activity
             android:name="com.insomniware.kingapp.CheckInActivity"
             android:label="@string/title_activity_check_in"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.insomniware.kingapp.MainPageActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
