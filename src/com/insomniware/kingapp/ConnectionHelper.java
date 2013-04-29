@@ -31,11 +31,15 @@ public class ConnectionHelper {
 	public ConnectionHelper(String path, JSONObject jsonobj){
 		httppostreq = new HttpPost(mainUrl+path);
 		try {
+			jsonobj.put("auth_token", MainPageActivity.auth_token);
 			se = new StringEntity(jsonobj.toString());
 			se.setContentType("application/json;charset=UTF-8");
 			se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
 			httppostreq.setEntity(se);
 		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
