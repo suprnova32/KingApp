@@ -2,7 +2,7 @@ package com.insomniware.kingapp;
 
 
 import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
+//import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -111,7 +111,7 @@ public class LocationFragment extends Fragment {
 	
 	private static void markMap(GoogleMap map) {
 		
-		mMap.addMarker(new MarkerOptions().position(new LatLng(48.7754181, 9.1817588)).title("First Marker"));
+		map.addMarker(new MarkerOptions().position(new LatLng(48.7754181, 9.1817588)).title("First Marker"));
 		
 	}
 	
