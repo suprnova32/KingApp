@@ -1,11 +1,16 @@
 package com.insomniware.kingapp;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -15,12 +20,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class InfoFragment extends Fragment {
+	
+	private ArrayList<HashMap<String, String>> mList;
+	private ListView mListView;
 	
 	private static UserInfoTask mInfoTask = null;
 	private static View mInfoView;
@@ -30,6 +42,48 @@ public class InfoFragment extends Fragment {
 	
 	public InfoFragment(){
 		
+	}
+	
+	private void setupLocationList(JSONArray rooms, JSONArray locations) throws JSONException {
+		mList = new ArrayList<HashMap<String, String>>();
+		for(int i=0;i<rooms.length();i++){						
+			HashMap<String, String> map = new HashMap<String, String>();	
+			JSONObject e = rooms.getJSONObject(i);
+			boolean claimed = e.getBoolean("claimed");
+			String claimed_info;
+			if (claimed) {
+				claimed_info = "Room claimed by: " + e.getString("claimed_by");
+			} else {
+				claimed_info = "Unclaimed! Tell your friends to check in now!";				
+			}			
+			
+			map.put("id",  e.getString("id_hash"));
+        	map.put("name", "Room: " + e.getString("building_id") + "/" + e.getString("number"));
+        	map.put("info", claimed_info);
+        	mList.add(map);			
+		}
+		
+		SimpleAdapter sa = new SimpleAdapter(
+    	        getActivity(),
+    	        mList,
+    	        R.layout.location_details,
+    	        new String[] { "name", "info"},
+    	        new int[] { R.id.locationName, R.id.locationDetails});
+		mListView.setAdapter(sa);
+		mListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Intent room_info = new Intent(view.getContext(), CheckInActivity.class);
+				Bundle b = new Bundle();
+				b.putInt("selected", 2);
+				b.putString("room_hash", mList.get(position).get("id"));
+				b.putString("room_name", mList.get(position).get("name"));
+				room_info.putExtras(b);
+				startActivity(room_info);				
+			}
+			
+		});
 	}
 	
 	@Override  
@@ -46,6 +100,37 @@ public class InfoFragment extends Fragment {
 		
 	}
 	
+	public void showAlert(){
+		CharSequence[] options = {"QR Code (for rooms)", "GPS (for hidden locations)"};
+		final Bundle b = new Bundle();
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle(R.string.check_in_title)
+	       .setSingleChoiceItems(options, 0, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				b.putInt("selected", which);				
+			}
+		})
+	       .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+	           @Override
+			public void onClick(DialogInterface dialog, int id) {
+	        	   Intent check_in = new Intent(getActivity(), CheckInActivity.class);
+	        	   check_in.putExtras(b);
+	        	   startActivity(check_in);
+	           }
+	       })
+	       .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	           @Override
+			public void onClick(DialogInterface dialog, int id) {
+	                dialog.cancel();
+	           }
+	       });
+		AlertDialog alert = builder.create();
+		alert.show();
+    }
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -57,6 +142,8 @@ public class InfoFragment extends Fragment {
 		mInfoStatusView = wrapper.findViewById(R.id.info_status);
 		mUserName = (TextView) wrapper.findViewById(R.id.user_name);
 		mEmail = (TextView) wrapper.findViewById(R.id.your_email);
+		mListView = (ListView) wrapper.findViewById(R.id.locations_list);
+		
 		if (MainPageActivity.auth_token != null)
 			fetchUserInformation();
 		
@@ -64,10 +151,7 @@ public class InfoFragment extends Fragment {
 		check_in.setOnClickListener(new OnClickListener() {
         	@Override
 			public void onClick(View view) {
-        		Intent i = new Intent(getActivity(), CheckInActivity.class);
-                startActivity(i);
-//        		IntentIntegrator integrator = new IntentIntegrator(getActivity());
-//        		integrator.initiateScan();
+        		showAlert();
             }
         });
 		
@@ -134,6 +218,7 @@ public class InfoFragment extends Fragment {
 	public class UserInfoTask extends AsyncTask<Void, Void, Boolean> {
 		
 		JSONObject user = null;
+		JSONArray rooms, locations = null;
 		
 		@Override
 		protected Boolean doInBackground(Void... params) {
@@ -142,11 +227,12 @@ public class InfoFragment extends Fragment {
 			
 			try {
 				jsonobj.put("email", MainPageActivity.email);
-				jsonobj.put("auth_token", MainPageActivity.auth_token);
 				ConnectionHelper conn = new ConnectionHelper("user_info", jsonobj);
 				JSONObject recvdjson = conn.performRequest();
 				if (recvdjson.has("user")){
 					user = recvdjson.getJSONObject("user");
+					locations = recvdjson.getJSONArray("locations");
+					rooms = recvdjson.getJSONArray("rooms"); 
 					return true;					
 				}else if (recvdjson.has("error")) {
 					return false;					
@@ -169,6 +255,7 @@ public class InfoFragment extends Fragment {
 				try {
 					mUserName.setText(user.getString("name"));
 					mEmail.setText(user.getString("email"));
+					setupLocationList(rooms, locations);
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
