@@ -201,7 +201,8 @@ public class CheckInActivity extends Activity {
 			performQRCheckIn(contents);
 			//dummyTextView.setText(contents);
 		} else {
-			//dummyTextView.setText("Result unsuccessful");			
+			showError("Parsing error. Try again!");
+			finish();
 		}
 	}
 
