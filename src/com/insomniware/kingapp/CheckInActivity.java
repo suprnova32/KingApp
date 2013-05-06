@@ -8,6 +8,11 @@ import java.util.Iterator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.insomniware.kingapp.extras.IntentIntegrator;
+import com.insomniware.kingapp.extras.IntentResult;
+import com.insomniware.kingapp.fragments.LocationFragment;
+import com.insomniware.kingapp.helpers.ConnectionHelper;
+
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -18,6 +23,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,11 +40,13 @@ public class CheckInActivity extends Activity {
 	 */
 	private CheckInTask mCheckTask = null;
 	private String room_info = null;
+	private String location_info = null;
 	private String nUsers;
 	private ArrayList<HashMap<String, String>> mList;
 	private ListView mListView;
 	private int option;
 	private String room_hash;
+	private String name;
 
 	// UI references.
 	private TextView mRoomInfo;
@@ -62,7 +70,8 @@ public class CheckInActivity extends Activity {
 		setupActionBar();
 		Bundle b = getIntent().getExtras();
 		option = b.getInt("selected");
-		room_hash = b.getString("room_hash");
+		room_hash = b.getString("id");
+		name = b.getString("room_name");
 		if (option == 0){
     		IntentIntegrator integrator = new IntentIntegrator(this);
     		integrator.initiateScan();
@@ -71,7 +80,13 @@ public class CheckInActivity extends Activity {
 		} else if (option == 2) {
 			setTitle("Room Info");
 			changeStatusText();
-			mRoomInfo.setText(b.getString("room_name"));
+			mRoomInfo.setText(name);
+			showProgress(true);
+			mCheckTask = new CheckInTask();
+			mCheckTask.execute((Void) null);
+		} else if (option == 3) {
+			setTitle("Location Info");
+			mRoomInfo.setText(name);
 			showProgress(true);
 			mCheckTask = new CheckInTask();
 			mCheckTask.execute((Void) null);
@@ -83,7 +98,9 @@ public class CheckInActivity extends Activity {
 			return;
 		}
 		showProgress(true);
-		Toast.makeText(this, "Feature not implemented yet", Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, "Feature not implemented yet", Toast.LENGTH_LONG).show();
+		mCheckTask = new CheckInTask();
+		mCheckTask.execute((Void) null);
 		
 	}
 	
@@ -110,6 +127,7 @@ public class CheckInActivity extends Activity {
 		HashMap<String, String> map = new HashMap<String, String>();
 		JSONObject jsonobj = new JSONObject();
 		jsonobj.put("room_hash", room_hash);
+		Log.e("Room Hash", room_hash);
 		ConnectionHelper conn = new ConnectionHelper("room_info", jsonobj);
 		JSONObject recvdjson = conn.performRequest();
 		if (recvdjson.has("message")) {
@@ -121,6 +139,34 @@ public class CheckInActivity extends Activity {
 		if (room.has("building_id")) {
 			room_info = "Room: "+room.getString("building_id")+"/"+room.getString("number");			
 		}
+		Iterator<?> iter = stats.keys();
+		while (iter.hasNext()) {
+	        String key = (String) iter.next();
+	        String value = null;
+	        try {
+	            value = stats.getString(key);
+	        } catch (JSONException e) {
+	            // Something went wrong!
+	        }
+	        map.put("course", key);
+	        map.put("number", value);
+	    }
+		return map;
+	}
+	
+	private HashMap<String, String> fetchLocationInfo(int location_id, String name) throws JSONException, IOException {
+		mList = new ArrayList<HashMap<String, String>>();
+		HashMap<String, String> map = new HashMap<String, String>();
+		JSONObject jsonobj = new JSONObject();
+		jsonobj.put("location_id", location_id);
+		ConnectionHelper conn = new ConnectionHelper("location_info", jsonobj);
+		JSONObject recvdjson = conn.performRequest();
+		if (recvdjson.has("message")) {
+			return null;
+		}
+		nUsers = recvdjson.getString("users");
+		JSONObject stats = recvdjson.getJSONObject("stats");
+		location_info = name;
 		Iterator<?> iter = stats.keys();
 		while (iter.hasNext()) {
 	        String key = (String) iter.next();
@@ -259,14 +305,21 @@ public class CheckInActivity extends Activity {
 			ConnectionHelper conn;
 			
 			try {
-				if (option == 2){
+				Location loc = MainPageActivity.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+				if (loc == null) {
+					loc = LocationFragment.latestLocation;
+				}
+				jsonobj.put("latitude", loc.getLatitude());
+				jsonobj.put("longitude", loc.getLongitude());
+				if (option == 2) {
 					return_value = 4;
 					localMap = fetchRoomInfo(room_hash);							
+				} else if (option == 3) {
+					return_value = 4;
+					localMap = fetchLocationInfo(Integer.parseInt(room_hash), name);
+					
 				} else if (mQR != null){					 
-					jsonobj.put("room_hash", mQR);
-					Location loc = MainPageActivity.locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-					jsonobj.put("latitude", loc.getLatitude());
-					jsonobj.put("longitude", loc.getLongitude());
+					jsonobj.put("room_hash", mQR);					
 					conn = new ConnectionHelper("check_in", jsonobj);
 					JSONObject recvdjson = conn.performRequest();
 					if (recvdjson.has("message")) {
@@ -276,7 +329,16 @@ public class CheckInActivity extends Activity {
 					localMap = fetchRoomInfo(mQR);				
 					
 				} else {					
-					conn = new ConnectionHelper("hidden_check", jsonobj);					
+					conn = new ConnectionHelper("hidden_check", jsonobj);
+					JSONObject recvdjson = conn.performRequest();
+					if (recvdjson.has("message")) {
+						String msn = recvdjson.getString("message");
+						return_value = messageEval(msn);
+						if (return_value != 0)
+							return return_value;
+					}
+					JSONObject checked = recvdjson.getJSONObject("location");
+					localMap = fetchLocationInfo(checked.getInt("id"), checked.getString("name"));
 				}
 				
 			} catch (JSONException ex) {
@@ -296,14 +358,16 @@ public class CheckInActivity extends Activity {
 				mRoomInfo.setText(room_info);						
 			}
 			mUsersInfo.setText("Users checked in: " + nUsers);
-			mList.add(localMap);
-			SimpleAdapter sa = new SimpleAdapter(
-	    	        getBaseContext(),
-	    	        mList,
-	    	        R.layout.location_details,
-	    	        new String[] { "course", "number"},
-	    	        new int[] { R.id.locationName, R.id.locationDetails});
-			mListView.setAdapter(sa);
+			if (mList != null) {
+				mList.add(localMap);
+				SimpleAdapter sa = new SimpleAdapter(
+		    	        getBaseContext(),
+		    	        mList,
+		    	        R.layout.location_details,
+		    	        new String[] { "course", "number"},
+		    	        new int[] { R.id.locationName, R.id.locationDetails});
+				mListView.setAdapter(sa);				
+			}
 			
 			switch(status) {
 				case 0: 
@@ -312,6 +376,8 @@ public class CheckInActivity extends Activity {
 				case 1: 
 					//Distance error
 					showError("You are not where you say you are!");
+					if (option == 1 || option == 3)
+						finish();
 					break;
 				case 2:
 					//Duplicate
@@ -335,5 +401,4 @@ public class CheckInActivity extends Activity {
 			showProgress(false);
 		}
 	}
-
 }
