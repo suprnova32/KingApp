@@ -5,6 +5,9 @@ import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.insomniware.kingapp.extras.MyConstants;
+import com.insomniware.kingapp.helpers.ConnectionHelper;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -244,7 +247,7 @@ public class LoginActivity extends Activity {
 					String token = recvdjson.getString("token");
 					if (token != null && token != "") {
 						MainPageActivity.auth_token = token;
-						SharedPreferences settings = getSharedPreferences(MainPageActivity.PREFS_NAME, 0);
+						SharedPreferences settings = getSharedPreferences(MyConstants.PREFS_NAME, 0);
 						SharedPreferences.Editor editor = settings.edit();
 						editor.putString("email", mEmail);
 						editor.putString("token", token);	

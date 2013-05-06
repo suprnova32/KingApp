@@ -2,8 +2,16 @@ package com.insomniware.kingapp;
 
 import java.util.Locale;
 
+import com.insomniware.kingapp.extras.MyConstants;
+import com.insomniware.kingapp.fragments.InfoFragment;
+import com.insomniware.kingapp.fragments.LocationFragment;
+import com.insomniware.kingapp.receivers.PassiveLocationChangedReceiver;
+import com.insomniware.kingapp.receivers.ProximityIntentReceiver;
+
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -28,13 +36,14 @@ public class MainPageActivity extends FragmentActivity {
 	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
-	private static final int FIVE_MINUTES = 1000 * 60 * 5;
+	SharedPreferences settings;
+	SharedPreferences.Editor editor;
 	private static boolean KILL = false;
-	public static final String PREFS_NAME = "com.insomniware.kingapp";
 	public static String auth_token;
 	public static String email;
 	private MenuItem menuItem;
-	Fragment[] fragments = new Fragment[]{new InfoFragment(), new LocationFragment()};
+	protected PendingIntent locationListenerPassivePendingIntent;
+	Fragment[] fragments;
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -47,12 +56,20 @@ public class MainPageActivity extends FragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+		fragments = new Fragment[]{new InfoFragment(), new LocationFragment()};
+		settings = getSharedPreferences(MyConstants.PREFS_NAME, 0);
+		editor = settings.edit();
+		
 		auth_token = settings.getString("token", null);
 		email = settings.getString("email", null); 
 		loginDataCheck(auth_token);
 		setContentView(R.layout.activity_main_page);
-		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+		
+		Intent passiveIntent = new Intent(this, PassiveLocationChangedReceiver.class);
+	    locationListenerPassivePendingIntent = PendingIntent.getBroadcast(this, 0, passiveIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+	    locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MyConstants.MAX_TIME, MyConstants.MAX_DISTANCE, locationListenerPassivePendingIntent); 
+
 
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the app.
@@ -67,30 +84,21 @@ public class MainPageActivity extends FragmentActivity {
 			FragmentManager manager = getSupportFragmentManager();
 			new LocationFragment().forceMapReload(manager);
 		}
-		// Register the listener with the Location Manager to receive location updates
-		locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, LocationFragment.localLocationListener, null);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, FIVE_MINUTES, 500, LocationFragment.localLocationListener);
-
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		locationManager.removeUpdates(LocationFragment.localLocationListener);		
 	}
 	
 	@Override
-	protected void onSaveInstanceState (Bundle outState){
+	protected void onSaveInstanceState (Bundle outState) {
 				
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if(LocationFragment.mMap != null)
-			LocationFragment.setUpMap("From onResume");
-		locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, LocationFragment.localLocationListener, null);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LocationFragment.ONE_MINUTE, 500, LocationFragment.localLocationListener);
 	}
 	
 
@@ -109,11 +117,10 @@ public class MainPageActivity extends FragmentActivity {
 	        startActivity(intent);
 	        break;
 	    case R.id.log_out:
-	    	SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-	        SharedPreferences.Editor editor = settings.edit();
 	        editor.remove("token");
 	        editor.commit();
 	        KILL = true;
+	        locationManager.removeUpdates(locationListenerPassivePendingIntent);
 	    	finish();
 	        break;
 	    case R.id.action_refresh:
@@ -137,14 +144,12 @@ public class MainPageActivity extends FragmentActivity {
 	}
 	
 	@Override
-    protected void onStop(){
+    protected void onStop() {
        super.onStop();
        
-       if (KILL == false){
+       if (KILL == false) {
     	  // We need an Editor object to make preference changes.
 	      // All objects are from android.context.Context
-	      SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-	      SharedPreferences.Editor editor = settings.edit();
 	      editor.putString("token", auth_token);
 
 	      // Commit the edits!
@@ -158,7 +163,7 @@ public class MainPageActivity extends FragmentActivity {
 	}
 	
 	private boolean loginDataCheck(String token){
-		if((token == null)){
+		if((token == null)) {
         	Intent i = new Intent(this, LoginActivity.class);
             startActivity(i);
         }
@@ -179,9 +184,7 @@ public class MainPageActivity extends FragmentActivity {
 	    	} catch (Exception e) {
 	    		e.printStackTrace();
 	    		return false;	    			    		
-	    	}
-			
-			
+	    	}			
 			return true;
 		}
 
@@ -232,8 +235,6 @@ public class MainPageActivity extends FragmentActivity {
 				return getString(R.string.user_info).toUpperCase(l);
 			case 1:
 				return getString(R.string.hidden_stuff).toUpperCase(l);
-			case 2:
-				return getString(R.string.check_in).toUpperCase(l);
 			}
 			return null;
 		}
