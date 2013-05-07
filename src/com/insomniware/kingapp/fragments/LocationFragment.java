@@ -214,13 +214,6 @@ public class LocationFragment extends Fragment {
 			for(LocationMarker lm : mMarkers) {
 				mMap.addMarker(new MarkerOptions().position(lm.getCoordinates()).title(lm.getInfo()));
 				mMap.addCircle(new CircleOptions().center(lm.getCoordinates()).radius(50f).strokeWidth(1).strokeColor(0x809fff).fillColor(0x358097f5));
-//				Bundle extras = new Bundle();
-//			    extras.putString("name", lm.getInfo());
-//			    extras.putInt("id", requestCode);
-//				Intent myIntent = new Intent(INTENT_FILTER);
-//				myIntent.putExtra(INTENT_FILTER, extras);
-//				PendingIntent proximityIntent = PendingIntent.getBroadcast(myContext, requestCode, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-//				MainPageActivity.locationManager.addProximityAlert(lm.getCoordinates().latitude, lm.getCoordinates().longitude, 60f, 600000, proximityIntent);
 				requestCode++;
 			}
 		}
