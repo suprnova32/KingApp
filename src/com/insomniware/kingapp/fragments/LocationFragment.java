@@ -51,9 +51,6 @@ public class LocationFragment extends Fragment {
 	public static Location latestLocation = MainPageActivity.locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 	private static MarkTask mMarkTask = null;
 	private static List<LocationMarker> mMarkers;
-	private static Context myContext;
-	private static int requestCode = 0;
-	private static Activity myActivity;
 	public static String INTENT_FILTER = "com.insomniware.kingapp.Notify";
 	
 	public LocationListener localLocationListener = new LocationListener() {
@@ -82,10 +79,6 @@ public class LocationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {  
         super.onCreate(savedInstanceState);
         // Register the listener with the Location Manager to receive location updates
-        myContext = getActivity().getApplicationContext();
-        myActivity = getActivity();
-        //IntentFilter filter = new IntentFilter(INTENT_FILTER);
-		//myActivity.registerReceiver(new ProximityIntentReceiver(), filter);
  		MainPageActivity.locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, localLocationListener, null);
  		MainPageActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MyConstants.FIVE_MINUTES, 500, localLocationListener);
 
@@ -214,7 +207,6 @@ public class LocationFragment extends Fragment {
 			for(LocationMarker lm : mMarkers) {
 				mMap.addMarker(new MarkerOptions().position(lm.getCoordinates()).title(lm.getInfo()));
 				mMap.addCircle(new CircleOptions().center(lm.getCoordinates()).radius(50f).strokeWidth(1).strokeColor(0x809fff).fillColor(0x358097f5));
-				requestCode++;
 			}
 		}
 
