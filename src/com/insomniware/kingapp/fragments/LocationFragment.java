@@ -3,7 +3,6 @@ package com.insomniware.kingapp.fragments;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -17,21 +16,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.insomniware.kingapp.MainPageActivity;
 import com.insomniware.kingapp.R;
-import com.insomniware.kingapp.CheckInActivity.CheckInTask;
-import com.insomniware.kingapp.R.id;
-import com.insomniware.kingapp.R.layout;
 import com.insomniware.kingapp.extras.MyConstants;
 import com.insomniware.kingapp.helpers.ConnectionHelper;
 import com.insomniware.kingapp.helpers.LocationMarker;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -41,7 +31,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 public class LocationFragment extends Fragment {
@@ -129,13 +118,6 @@ public class LocationFragment extends Fragment {
 		Log.e("Map Activity", mes);
         mMap.setMyLocationEnabled(true);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(14f));
-//        mMap.setOnMyLocationChangeListener(new OnMyLocationChangeListener() {
-//			
-//			@Override
-//			public void onMyLocationChange(Location location) {
-//				updateMap(location);				
-//			}
-//		});
         
         markMap();       
     }

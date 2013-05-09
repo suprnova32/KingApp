@@ -6,12 +6,10 @@ import com.insomniware.kingapp.extras.MyConstants;
 import com.insomniware.kingapp.fragments.InfoFragment;
 import com.insomniware.kingapp.fragments.LocationFragment;
 import com.insomniware.kingapp.receivers.PassiveLocationChangedReceiver;
-import com.insomniware.kingapp.receivers.ProximityIntentReceiver;
 
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.AsyncTask;

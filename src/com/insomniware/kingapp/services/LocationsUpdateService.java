@@ -8,7 +8,6 @@ import org.json.JSONObject;
 
 import com.insomniware.kingapp.extras.MyConstants;
 import com.insomniware.kingapp.helpers.ConnectionHelper;
-import com.insomniware.kingapp.helpers.LocationMarker;
 import com.insomniware.kingapp.receivers.PassiveLocationChangedReceiver;
 import com.insomniware.kingapp.receivers.ProximityIntentReceiver;
 

@@ -2,7 +2,6 @@ package com.insomniware.kingapp.receivers;
 
 import com.insomniware.kingapp.MainPageActivity;
 import com.insomniware.kingapp.R;
-import com.insomniware.kingapp.R.drawable;
 
 import android.app.Notification;
 import android.app.NotificationManager;

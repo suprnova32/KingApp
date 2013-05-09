@@ -11,9 +11,6 @@ import org.json.JSONObject;
 import com.insomniware.kingapp.CheckInActivity;
 import com.insomniware.kingapp.MainPageActivity;
 import com.insomniware.kingapp.R;
-import com.insomniware.kingapp.R.id;
-import com.insomniware.kingapp.R.layout;
-import com.insomniware.kingapp.R.string;
 import com.insomniware.kingapp.helpers.ConnectionHelper;
 
 import android.annotation.TargetApi;
