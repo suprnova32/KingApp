@@ -98,7 +98,6 @@ public class CheckInActivity extends Activity {
 			return;
 		}
 		showProgress(true);
-		//Toast.makeText(this, "Feature not implemented yet", Toast.LENGTH_LONG).show();
 		mCheckTask = new CheckInTask();
 		mCheckTask.execute((Void) null);
 		
@@ -239,13 +238,11 @@ public class CheckInActivity extends Activity {
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		//TextView dummyTextView = (TextView) findViewById(R.id.result_text);
 		IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
 		if (result != null) {
 			// handle scan result
 			String contents = result.getContents();
 			performQRCheckIn(contents);
-			//dummyTextView.setText(contents);
 		} else {
 			showError("Parsing error. Try again!");
 			finish();
