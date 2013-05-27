@@ -24,7 +24,7 @@ import android.util.Log;
 
 public class ConnectionHelper {
 	
-	String mainUrl = "http://kingapp.insomniware.com/api/v1/";
+	String mainUrl = "https://kingapp.herokuapp.com/api/v1/";
 	JSONObject result = new JSONObject();
 	DefaultHttpClient httpclient = new DefaultHttpClient();
 	HttpPost httppostreq;
@@ -51,6 +51,7 @@ public class ConnectionHelper {
 	public JSONObject performRequest() throws IOException{
 		
 		try {
+			Log.e("Connecting to", mainUrl);
 			HttpResponse httpresponse = httpclient.execute(httppostreq);
 			HttpEntity resultentity = httpresponse.getEntity();
 			InputStream inputstream = resultentity.getContent();
