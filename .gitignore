@@ -25,3 +25,4 @@ out/
 .idea/
 gen-external-apklibs/
 bin
+*.iml

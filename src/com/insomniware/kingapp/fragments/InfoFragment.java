@@ -246,7 +246,7 @@ public class InfoFragment extends Fragment {
 			try {
 				jsonobj.put("email", MainPageActivity.email);
 				ConnectionHelper conn = new ConnectionHelper("user_info", jsonobj);
-				JSONObject recvdjson = conn.performRequest();
+				JSONObject recvdjson = conn.performRequest(getActivity());
 				if (recvdjson.has("user")){
 					user = recvdjson.getJSONObject("user");
 					locations = recvdjson.getJSONArray("locations");

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +41,7 @@ public class LocationFragment extends Fragment {
 	public static Location latestLocation = MainPageActivity.locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 	private static MarkTask mMarkTask = null;
 	private static List<LocationMarker> mMarkers;
-	public static String INTENT_FILTER = "com.insomniware.kingapp.Notify";
+    private static Context context;
 	
 	public LocationListener localLocationListener = new LocationListener() {
 
@@ -68,6 +69,7 @@ public class LocationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {  
         super.onCreate(savedInstanceState);
         // Register the listener with the Location Manager to receive location updates
+        context = getActivity();
  		MainPageActivity.locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, localLocationListener, null);
  		MainPageActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MyConstants.FIVE_MINUTES, 500, localLocationListener);
 
@@ -162,7 +164,7 @@ public class LocationFragment extends Fragment {
 				jsonobj.put("latitude", latestLocation.getLatitude());
 				jsonobj.put("longitude", latestLocation.getLongitude());
 				conn = new ConnectionHelper("hidden_locations", jsonobj);
-				JSONObject recvdjson = conn.performRequest();
+				JSONObject recvdjson = conn.performRequest(context);
 				if (recvdjson.has("error")) {
 					return false;				
 				}

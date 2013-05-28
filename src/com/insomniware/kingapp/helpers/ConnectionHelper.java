@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.zip.GZIPInputStream;
 
+import android.content.Context;
+import android.widget.Toast;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -48,7 +50,7 @@ public class ConnectionHelper {
 		
 	}
 	
-	public JSONObject performRequest() throws IOException{
+	public JSONObject performRequest(Context context) throws IOException{
 		
 		try {
 			Log.e("Connecting to", mainUrl);
@@ -64,7 +66,7 @@ public class ConnectionHelper {
 			inputstream.close();
 			result = new JSONObject(resultstring);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
+            Toast.makeText(context, "Stream Exception", Toast.LENGTH_SHORT).show();
 			e.printStackTrace();
 		}	
 		

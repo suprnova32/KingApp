@@ -128,7 +128,7 @@ public class CheckInActivity extends Activity {
 		jsonobj.put("room_hash", room_hash);
 		Log.e("Room Hash", room_hash);
 		ConnectionHelper conn = new ConnectionHelper("room_info", jsonobj);
-		JSONObject recvdjson = conn.performRequest();
+		JSONObject recvdjson = conn.performRequest(getApplicationContext());
 		if (recvdjson.has("message")) {
 			return null;
 		}
@@ -159,7 +159,7 @@ public class CheckInActivity extends Activity {
 		JSONObject jsonobj = new JSONObject();
 		jsonobj.put("location_id", location_id);
 		ConnectionHelper conn = new ConnectionHelper("location_info", jsonobj);
-		JSONObject recvdjson = conn.performRequest();
+		JSONObject recvdjson = conn.performRequest(getApplicationContext());
 		if (recvdjson.has("message")) {
 			return null;
 		}
@@ -318,7 +318,7 @@ public class CheckInActivity extends Activity {
 				} else if (mQR != null){					 
 					jsonobj.put("room_hash", mQR);					
 					conn = new ConnectionHelper("check_in", jsonobj);
-					JSONObject recvdjson = conn.performRequest();
+					JSONObject recvdjson = conn.performRequest(getApplicationContext());
 					if (recvdjson.has("message")) {
 						String msn = recvdjson.getString("message");
 						return_value = messageEval(msn);					
@@ -327,7 +327,7 @@ public class CheckInActivity extends Activity {
 					
 				} else {					
 					conn = new ConnectionHelper("hidden_check", jsonobj);
-					JSONObject recvdjson = conn.performRequest();
+					JSONObject recvdjson = conn.performRequest(getApplicationContext());
 					if (recvdjson.has("message")) {
 						String msn = recvdjson.getString("message");
 						return_value = messageEval(msn);

@@ -91,11 +91,13 @@ public class LocationsUpdateService extends IntentService {
 //	    	pm.setComponentEnabledSetting(locationReceiver,
 //	    			PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 
 //	    			PackageManager.DONT_KILL_APP);
-	      
-	    	pm.setComponentEnabledSetting(passiveLocationReceiver,
-	    			PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 
-	    			PackageManager.DONT_KILL_APP);
-	    } else {
+
+            if (pm != null) {
+                pm.setComponentEnabledSetting(passiveLocationReceiver,
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        PackageManager.DONT_KILL_APP);
+            }
+        } else {
 	    	JSONObject jsonobj = new JSONObject();
 			ConnectionHelper conn;
 			
@@ -103,7 +105,7 @@ public class LocationsUpdateService extends IntentService {
 				jsonobj.put("latitude", location.getLatitude());
 				jsonobj.put("longitude", location.getLongitude());
 				conn = new ConnectionHelper("hidden_locations", jsonobj);
-				JSONObject recvdjson = conn.performRequest();
+				JSONObject recvdjson = conn.performRequest(getApplicationContext());
 				if (recvdjson.has("error")) {
 					return;				
 				}

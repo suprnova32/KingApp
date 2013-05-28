@@ -242,7 +242,7 @@ public class LoginActivity extends Activity {
 				jsonobj.put("password", mPassword);
 				ConnectionHelper conn = new ConnectionHelper("tokens.json", jsonobj);
 				
-				JSONObject recvdjson = conn.performRequest();
+				JSONObject recvdjson = conn.performRequest(getApplicationContext());
 				if (recvdjson.has("token")){
 					String token = recvdjson.getString("token");
 					if (token != null && token != "") {
