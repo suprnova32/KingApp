@@ -17,9 +17,9 @@
     <!-- External storage for caching. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- My Location -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Maps API needs OpenGL ES 2.0. -->
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -80,6 +80,7 @@
         </activity>
         <receiver android:name=".receivers.PassiveLocationChangedReceiver"/>
         <service android:name=".services.LocationsUpdateService"/>
+        <service android:name=".services.ReceiveTransitionsIntentService" android:exported="false"></service>
     </application>
 
 </manifest>

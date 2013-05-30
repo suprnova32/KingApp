@@ -191,7 +191,9 @@ public class CheckInActivity extends Activity {
 			return_value = 2;
 		} else if (msn.contentEquals("Record not found")) {
 			return_value = 5;			
-		}
+		} else if (msn.contentEquals("Claimed")) {
+            return_value = 4;
+        }
 		return return_value;
 	}
 	
@@ -309,10 +311,10 @@ public class CheckInActivity extends Activity {
 				jsonobj.put("latitude", loc.getLatitude());
 				jsonobj.put("longitude", loc.getLongitude());
 				if (option == 2) {
-					return_value = 4;
+					return_value = 6;
 					localMap = fetchRoomInfo(room_hash);							
 				} else if (option == 3) {
-					return_value = 4;
+					return_value = 6;
 					localMap = fetchLocationInfo(Integer.parseInt(room_hash), name);
 					
 				} else if (mQR != null){					 
@@ -385,6 +387,10 @@ public class CheckInActivity extends Activity {
 					showError("Houston we have a problem!");
 					finish();
 					break;
+                case 4:
+                    //Room already claimed, cannot check in
+                    showError("The room has already been claimed!");
+                    break;
 				case 5:
 					showError("Wrong QR Code. Try again!");
 					finish();
