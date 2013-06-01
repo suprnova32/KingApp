@@ -26,6 +26,7 @@ import com.insomniware.kingapp.extras.MyConstants;
  * For a production app, use a content provider that's synced to the
  * web or loads geofence data based on current location.
  */
+//TODO Should replace this entire class with a DB Connector
 public class SimpleGeofenceStore {
 
     // The SharedPreferences object in which geofences are stored

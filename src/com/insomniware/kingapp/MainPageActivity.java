@@ -8,6 +8,7 @@ import com.google.android.gms.location.Geofence;
 import com.insomniware.kingapp.extras.MyConstants;
 import com.insomniware.kingapp.fragments.InfoFragment;
 import com.insomniware.kingapp.fragments.LocationFragment;
+import com.insomniware.kingapp.helpers.SimpleGeofence;
 import com.insomniware.kingapp.receivers.PassiveLocationChangedReceiver;
 import com.insomniware.kingapp.helpers.GeofenceRemover;
 import com.insomniware.kingapp.helpers.GeofenceRequester;
@@ -130,9 +131,9 @@ public class MainPageActivity extends FragmentActivity  {
 		loginDataCheck(auth_token);
 		setContentView(R.layout.activity_main_page);
 		
-		Intent passiveIntent = new Intent(this, PassiveLocationChangedReceiver.class);
-	    locationListenerPassivePendingIntent = PendingIntent.getBroadcast(this, 0, passiveIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-	    locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MyConstants.MIN_TIME, MyConstants.MIN_DISTANCE, locationListenerPassivePendingIntent);
+//		Intent passiveIntent = new Intent(this, PassiveLocationChangedReceiver.class);
+//	    locationListenerPassivePendingIntent = PendingIntent.getBroadcast(this, 0, passiveIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//	    locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MyConstants.MIN_TIME, MyConstants.MIN_DISTANCE, locationListenerPassivePendingIntent);
 
 
 		// Create the adapter that will return a fragment for each of the three

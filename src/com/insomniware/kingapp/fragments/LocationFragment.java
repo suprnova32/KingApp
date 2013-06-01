@@ -133,7 +133,6 @@ public class LocationFragment extends Fragment implements
          * Create a new location client, using the enclosing class to
          * handle callbacks.
          */
-        //mLocationClient = new LocationClient(context, this, this);
  		//MainPageActivity.locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, localLocationListener, null);
  		//MainPageActivity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MyConstants.FIVE_MINUTES, 500, localLocationListener);
 
@@ -169,9 +168,11 @@ public class LocationFragment extends Fragment implements
     @Override
     public void onLocationChanged(Location location) {
         LocationFragment.latestLocation = location;
-        Toast.makeText(context, "Updated location", Toast.LENGTH_LONG).show();
-        LocationFragment.updateMap(location);
-        LocationFragment.markMap();
+        if (MainPageActivity.auth_token != null) {
+            Toast.makeText(context, "Updated location", Toast.LENGTH_LONG).show();
+            LocationFragment.updateMap(location);
+            LocationFragment.markMap();
+        }
     }
 
     @Override
@@ -291,6 +292,7 @@ public class LocationFragment extends Fragment implements
 	 * Represents an asynchronous task used to mark the map.
 	 */
 	public static class MarkTask extends AsyncTask<Void, Void, Boolean> {
+        boolean add = false;
 		
 		@Override
 		protected Boolean doInBackground(Void... params) {
@@ -325,64 +327,107 @@ public class LocationFragment extends Fragment implements
 
 		@Override
 		protected void onPostExecute(final Boolean status) {
-            int fence_id = MainPageActivity.settings.getInt("fences_num", 0);
-            MainPageActivity.mGeofenceIdsToRemove = new ArrayList<String>();
-            if (fence_id > 0) {
-                for (int i = 1; i <= fence_id; i++) {
-                    MainPageActivity.mPrefs.clearGeofence(String.valueOf(i));
-                    MainPageActivity.mGeofenceIdsToRemove.add(String.valueOf(i));
-                }
-                MainPageActivity.mRemoveType = GeofenceUtils.REMOVE_TYPE.LIST;
-                try {
-                    MainPageActivity.mGeofenceRemover.removeGeofencesById(MainPageActivity.mGeofenceIdsToRemove);
-                    fence_id = 1;
-                    MainPageActivity.editor.putInt("fences_num", 0);
-                    MainPageActivity.editor.commit();
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                } catch (UnsupportedOperationException e) {
-                    // Notify user that previous request hasn't finished.
-                }
-            }
-            MainPageActivity.mCurrentGeofences = new ArrayList<Geofence>();
+            int fence_id = MainPageActivity.settings.getInt("fences_num", -1);
+//            MainPageActivity.mGeofenceIdsToRemove = new ArrayList<String>();
+//            if (fence_id > 0) {
+//                for (int i = 1; i <= fence_id; i++) {
+//                    MainPageActivity.mPrefs.clearGeofence(String.valueOf(i));
+//                    MainPageActivity.mGeofenceIdsToRemove.add(String.valueOf(i));
+//                }
+//                MainPageActivity.mRemoveType = GeofenceUtils.REMOVE_TYPE.LIST;
+//                try {
+//                    MainPageActivity.mGeofenceRemover.removeGeofencesById(MainPageActivity.mGeofenceIdsToRemove);
+//                    fence_id = 1;
+//                    MainPageActivity.editor.putInt("fences_num", 0);
+//                    MainPageActivity.editor.commit();
+//                } catch (IllegalArgumentException e) {
+//                    e.printStackTrace();
+//                } catch (UnsupportedOperationException e) {
+//                    // Notify user that previous request hasn't finished.
+//                }
+//            }
+//            MainPageActivity.mCurrentGeofences = new ArrayList<Geofence>();
 			mMarkTask = null;
 			mMap.clear();
 			for(LocationMarker lm : mMarkers) {
-                SimpleGeofence gf = new SimpleGeofence(
-                        String.valueOf(fence_id),
-                        lm.getCoordinates().latitude,
-                        lm.getCoordinates().longitude,
-                        Float.valueOf(MyConstants.DEFAULT_RADIUS),
-                        // Set the expiration time
-                        GEOFENCE_EXPIRATION_IN_MILLISECONDS,
-                        // Detect only entry and exit transitions
-                        Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT
-                );
-                // Store this flat version in SharedPreferences
-                MainPageActivity.mPrefs.setGeofence(String.valueOf(fence_id), gf);
-                MainPageActivity.mCurrentGeofences.add(gf.toGeofence());
+                try {
+                    //TODO should fetch the SimpleGeofence from DB not from SharedPrefs.
+                    //SimpleGeofence local = MainPageActivity.mPrefs.getGeofence(String.valueOf(fence_id));
+                    if (fence_id != -1) {
+                        boolean test = validateUniqueness(fence_id, lm);
+                        if (test) {
+                            prepareGeofences(lm, fence_id);
+                        } else {
+                            add = false;
+                            Log.d("Geofencing", "Already saved, don't add them!");
+                        }
+                    } else {
+                        // is empty, so let's add
+                        prepareGeofences(lm, fence_id);
+                    }
+
+                } catch (IndexOutOfBoundsException e) {
+                    add = false;
+                    Log.d("Geofencing", "Array out of bounds");
+                }
 				mMap.addMarker(new MarkerOptions().position(lm.getCoordinates()).title(lm.getInfo()));
 				mMap.addCircle(new CircleOptions().center(lm.getCoordinates()).radius(50f).strokeWidth(1).strokeColor(0x809fff).fillColor(0x358097f5));
-                fence_id++;
 			}
             // Start the request. Fail if there's already a request in progress
-            MainPageActivity.mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;
             try {
                 // Try to add geofences
-                if (!MainPageActivity.mCurrentGeofences.isEmpty())
+                if (add && !MainPageActivity.mCurrentGeofences.isEmpty()) {
+                    Log.d("Geofencing", "Size changed, so adding...");
+                    MainPageActivity.mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;
                     MainPageActivity.mGeofenceRequester.addGeofences(MainPageActivity.mCurrentGeofences);
+                }
+
             } catch (UnsupportedOperationException e) {
                 // Notify user that previous request hasn't finished.
 
+            } catch (IllegalArgumentException e) {
+                Log.e("Exception", "We are not logged in yet, so don't try to connect");
             }
-            MainPageActivity.editor.putInt("fences_num", fence_id);
-            MainPageActivity.editor.commit();
 		}
 
 		@Override
 		protected void onCancelled() {
 			mMarkTask = null;
 		}
+
+        private void prepareGeofences(LocationMarker lm, int fence_id) {
+            fence_id++;
+            add = true;
+            MainPageActivity.editor.putInt("fences_num", fence_id);
+            MainPageActivity.editor.commit();
+            SimpleGeofence gf = new SimpleGeofence(
+                    String.valueOf(fence_id),
+                    lm.getCoordinates().latitude,
+                    lm.getCoordinates().longitude,
+                    Float.valueOf(MyConstants.DEFAULT_RADIUS),
+                    // Set the expiration time
+                    GEOFENCE_EXPIRATION_IN_MILLISECONDS,
+                    // Detect only entry and exit transitions
+                    Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT
+            );
+            // Store this flat version in SharedPreferences
+            Log.d("Geofencing", "It is OK to add, adding...");
+            MainPageActivity.mPrefs.setGeofence(String.valueOf(fence_id), gf);
+            MainPageActivity.mCurrentGeofences.add(gf.toGeofence());
+        }
+
+        private boolean validateUniqueness(int fence_id, LocationMarker lm) {
+            boolean value = false;
+            for (int i = 0; i <= fence_id; i++) {
+                SimpleGeofence local = MainPageActivity.mPrefs.getGeofence(String.valueOf(i));
+                if (local.getLatitude() == lm.getCoordinates().latitude && local.getLongitude() == lm.getCoordinates().longitude) {
+                    Log.e("Geofencing", "It is not unique!");
+                    value = false;
+                    break;
+                }
+            }
+            return value;
+        }
 	}
 
 }
