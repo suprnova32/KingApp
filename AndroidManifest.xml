@@ -53,18 +53,18 @@
         <activity
             android:name="com.insomniware.kingapp.LoginActivity"
             android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible"
+            android:parentActivityName="com.insomniware.kingapp.MainPageActivity"
             android:screenOrientation="portrait"
-			android:parentActivityName="com.insomniware.kingapp.MainPageActivity">
+            android:windowSoftInputMode="adjustResize|stateVisible" >
             <meta-data
-           		android:name="android.support.PARENT_ACTIVITY"
-           		android:value="com.insomniware.kingapp.MainPageActivity" />
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.insomniware.kingapp.MainPageActivity" />
         </activity>
         <activity
             android:name="com.insomniware.kingapp.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:screenOrientation="portrait"
-            android:parentActivityName="com.insomniware.kingapp.MainPageActivity" >
+            android:parentActivityName="com.insomniware.kingapp.MainPageActivity"
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.insomniware.kingapp.MainPageActivity" />
@@ -72,15 +72,29 @@
         <activity
             android:name="com.insomniware.kingapp.CheckInActivity"
             android:label="@string/title_activity_check_in"
-            android:screenOrientation="portrait"
+            android:parentActivityName="com.insomniware.kingapp.MainPageActivity"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.insomniware.kingapp.MainPageActivity" />
+        </activity>
+
+        <receiver android:name="com.insomniware.kingapp.receivers.PassiveLocationChangedReceiver" />
+
+        <service android:name="com.insomniware.kingapp.services.LocationsUpdateService" />
+        <service
+            android:name="com.insomniware.kingapp.services.ReceiveTransitionsIntentService"
+            android:exported="false" >
+        </service>
+
+        <activity
+            android:name="com.insomniware.kingapp.CreateHiddenLocationActivity"
+            android:label="@string/title_activity_create_hidden_location"
             android:parentActivityName="com.insomniware.kingapp.MainPageActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.insomniware.kingapp.MainPageActivity" />
         </activity>
-        <receiver android:name=".receivers.PassiveLocationChangedReceiver"/>
-        <service android:name=".services.LocationsUpdateService"/>
-        <service android:name=".services.ReceiveTransitionsIntentService" android:exported="false"></service>
     </application>
 
 </manifest>
