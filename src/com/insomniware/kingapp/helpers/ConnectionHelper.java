@@ -31,6 +31,7 @@ public class ConnectionHelper {
 	DefaultHttpClient httpclient = new DefaultHttpClient();
 	HttpPost httppostreq;
 	StringEntity se;
+    Context context;
 	
 	public ConnectionHelper(String path, JSONObject jsonobj){
 		httppostreq = new HttpPost(mainUrl+path);
@@ -41,16 +42,16 @@ public class ConnectionHelper {
 			se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
 			httppostreq.setEntity(se);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 	}
 	
-	public JSONObject performRequest(Context context) throws IOException{
+	public JSONObject performRequest(Context context) throws IOException {
+
+        this.context = context;
 		
 		try {
 			Log.e("Connecting to", mainUrl);
@@ -83,7 +84,7 @@ public class ConnectionHelper {
 	            total.append(line);
 	        }
 	    } catch (Exception e) {
-	    	//Toast.makeText(this, "Stream Exception", Toast.LENGTH_SHORT).show();
+	    	Toast.makeText(context, "Stream Exception", Toast.LENGTH_SHORT).show();
 	    }
 	    return total.toString();
 	}

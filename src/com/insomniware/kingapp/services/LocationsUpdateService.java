@@ -6,8 +6,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.insomniware.kingapp.MainPageActivity;
 import com.insomniware.kingapp.extras.MyConstants;
 import com.insomniware.kingapp.helpers.ConnectionHelper;
+import com.insomniware.kingapp.helpers.LocationMarker;
+import com.insomniware.kingapp.helpers.SimpleGeofence;
 import com.insomniware.kingapp.receivers.PassiveLocationChangedReceiver;
 import com.insomniware.kingapp.receivers.ProximityIntentReceiver;
 
@@ -22,6 +25,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.util.Log;
 
 public class LocationsUpdateService extends IntentService {
 	
@@ -51,6 +55,19 @@ public class LocationsUpdateService extends IntentService {
 		super.onCreate();
 		cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 	}
+
+    private boolean validateUniqueness(int fence_id, LocationMarker lm) {
+        boolean value = false;
+        for (int i = 0; i <= fence_id; i++) {
+            SimpleGeofence local = MainPageActivity.mPrefs.getGeofence(String.valueOf(i));
+            if (local.getLatitude() == lm.getCoordinates().latitude && local.getLongitude() == lm.getCoordinates().longitude) {
+                Log.e("Geofencing", "It is not unique!");
+                value = false;
+                break;
+            }
+        }
+        return value;
+    }
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
@@ -111,9 +128,13 @@ public class LocationsUpdateService extends IntentService {
 				}
 				JSONArray markers = recvdjson.getJSONArray("markers");
 				for(int i=0;i<markers.length();i++) {
-					JSONObject e = markers.getJSONObject(i);
+                    JSONObject e = markers.getJSONObject(i);
+                    LocationMarker mark = new LocationMarker(e.getInt("id"),
+                            e.getDouble("latitude"), e.getDouble("longitude"),
+                            e.getString("name"), e.getString("hint"), e.getString("points"));
 					double distance = e.getDouble("distance") * 1000;
-					if (distance <= radius) {
+                    int fence_id = MainPageActivity.settings.getInt("fences_num", -1);
+					if (distance <= radius && validateUniqueness(fence_id, mark)) {
 						new ProximityIntentReceiver().launchNotify(e.getString("name"), getApplicationContext());
 					}				
 				}

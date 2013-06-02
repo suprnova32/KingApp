@@ -162,7 +162,7 @@ public class GeofenceRequester
             mLocationClient.addGeofences(mCurrentGeofences, mGeofencePendingIntent, this);
         } catch (IllegalArgumentException e) {
             Log.e("Geofence", "Oh no! They are empty!");
-
+            requestDisconnection();
         }
     }
 
@@ -224,7 +224,7 @@ public class GeofenceRequester
     /**
      * Get a location client and disconnect from Location Services
      */
-    private void requestDisconnection() {
+    public void requestDisconnection() {
 
         // A request is no longer in progress
         mInProgress = false;

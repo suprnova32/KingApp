@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.insomniware.kingapp.CheckInActivity;
+import com.insomniware.kingapp.CreateHiddenLocationActivity;
 import com.insomniware.kingapp.MainPageActivity;
 import com.insomniware.kingapp.R;
 import com.insomniware.kingapp.helpers.ConnectionHelper;
@@ -76,7 +77,7 @@ public class InfoFragment extends Fragment {
 			map.put("id", e.getString("id"));
 			map.put("type", "3");
 			map.put("name", "Location name: " + e.getString("name"));
-			map.put("info", "Points scored: "); // + e.getString("score"));
+			map.put("info", "Points scored: " + e.getString("points"));
 			mList.add(map);
 			
 		}
@@ -172,7 +173,16 @@ public class InfoFragment extends Fragment {
         		showAlert();
             }
         });
-		
+
+        Button create_loc = (Button) wrapper.findViewById(R.id.create_location_button);
+        create_loc.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent new_location = new Intent(getActivity(), CreateHiddenLocationActivity.class);
+                startActivity(new_location);
+            }
+        });
+
 		return wrapper; //rootView;
 	}
 	

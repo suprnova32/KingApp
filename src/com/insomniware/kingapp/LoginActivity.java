@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -91,6 +92,14 @@ public class LoginActivity extends Activity {
 						attemptLogin();
 					}
 				});
+
+        findViewById(R.id.register_button).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getApplication(), "Not yet implemented.", Toast.LENGTH_LONG).show();
+                    }
+                });
 	}
 
 	/**

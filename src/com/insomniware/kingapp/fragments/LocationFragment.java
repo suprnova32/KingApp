@@ -313,7 +313,8 @@ public class LocationFragment extends Fragment implements
 				for(int i=0;i<markers.length();i++) {
 					JSONObject e = markers.getJSONObject(i);
 					LocationMarker mark = new LocationMarker(e.getInt("id"), 
-							e.getDouble("latitude"), e.getDouble("longitude"), e.getString("name"));
+							e.getDouble("latitude"), e.getDouble("longitude"),
+                            e.getString("name"), e.getString("hint"), e.getString("points"));
 					mMarkers.add(mark);					
 				}
 				
@@ -370,7 +371,9 @@ public class LocationFragment extends Fragment implements
                     add = false;
                     Log.d("Geofencing", "Array out of bounds");
                 }
-				mMap.addMarker(new MarkerOptions().position(lm.getCoordinates()).title(lm.getInfo()));
+				mMap.addMarker(new MarkerOptions().position(lm.getCoordinates())
+                        .title(lm.getName())
+                        .snippet("Hint: "+lm.getHint()+"\nPoints: "+lm.getPoints()));
 				mMap.addCircle(new CircleOptions().center(lm.getCoordinates()).radius(50f).strokeWidth(1).strokeColor(0x809fff).fillColor(0x358097f5));
 			}
             // Start the request. Fail if there's already a request in progress
@@ -380,6 +383,7 @@ public class LocationFragment extends Fragment implements
                     Log.d("Geofencing", "Size changed, so adding...");
                     MainPageActivity.mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;
                     MainPageActivity.mGeofenceRequester.addGeofences(MainPageActivity.mCurrentGeofences);
+                    MainPageActivity.mGeofenceRequester.requestDisconnection();
                 }
 
             } catch (UnsupportedOperationException e) {

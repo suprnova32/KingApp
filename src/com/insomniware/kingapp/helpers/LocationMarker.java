@@ -3,30 +3,42 @@ package com.insomniware.kingapp.helpers;
 import com.google.android.gms.maps.model.LatLng;
 
 public class LocationMarker {
-	
-	public LocationMarker(int ex_id, double latitude, double longitude, String info) {
+
+    private String points;
+    private long id;
+    private double latitude;
+    private double longitude;
+    private String name;
+    private int ex_id;
+    private String hint;
+
+    public LocationMarker(int ex_id, double latitude, double longitude, String name, String hint, String points) {
 		this.ex_id = ex_id;
 		this.latitude = latitude;
 		this.longitude = longitude;
-		this.info = info;		
+		this.name = name;
+        this.hint = hint;
+        this.points = points;
 	}
-	
-	private long id;
-	private double latitude;
-	private double longitude;
-	private String info;
-	private int ex_id;
 	
 	public long getId() {
 		return id;
 	}
 
+    public String getPoints() {
+        return points;
+    }
+
+    public String getHint() {
+        return hint;
+    }
+
 	public void setId(long id) {
 		this.id = id;
 	}
 
-	public String getInfo() {
-		return info;
+	public String getName() {
+		return name;
 	}
 	
 	public LatLng getCoordinates() {

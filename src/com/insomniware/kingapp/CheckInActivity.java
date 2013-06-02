@@ -79,13 +79,14 @@ public class CheckInActivity extends Activity {
 			performGPSCheckIn();
 		} else if (option == 2) {
 			setTitle("Room Info");
-			changeStatusText();
+			changeStatusText("Fetching room info");
 			mRoomInfo.setText(name);
 			showProgress(true);
 			mCheckTask = new CheckInTask();
 			mCheckTask.execute((Void) null);
 		} else if (option == 3) {
 			setTitle("Location Info");
+            changeStatusText("Fetching location info");
 			mRoomInfo.setText(name);
 			showProgress(true);
 			mCheckTask = new CheckInTask();
@@ -107,8 +108,8 @@ public class CheckInActivity extends Activity {
 		Toast.makeText(this, msn, Toast.LENGTH_LONG).show();		
 	}
 	
-	private void changeStatusText() {
-		mCheckInStatusMessageView.setText("Fetching room info");
+	private void changeStatusText(String msn) {
+		mCheckInStatusMessageView.setText(msn);
 	}
 	
 	private void performQRCheckIn(String qr_result) {
@@ -350,7 +351,7 @@ public class CheckInActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(final Integer status) {
-			changeStatusText();
+			changeStatusText("Fetching room info");
 			mCheckTask = null;
 			showProgress(false);
 			if (room_info != null){
@@ -384,16 +385,16 @@ public class CheckInActivity extends Activity {
 					break;
 				case 3:
 					//Unknown error
+                    finish();
 					showError("Houston we have a problem!");
-					finish();
 					break;
                 case 4:
                     //Room already claimed, cannot check in
                     showError("The room has already been claimed!");
                     break;
 				case 5:
+                    finish();
 					showError("Wrong QR Code. Try again!");
-					finish();
 					break;
 			}
 		}

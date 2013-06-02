@@ -1,0 +1,119 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:tools="http://schemas.android.com/tools"
+       tools:context=".LoginActivity" >
+
+    <!-- Login progress -->
+
+    <LinearLayout
+            android:id="@+id/hidden_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+        <ProgressBar
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" />
+
+        <TextView
+                android:id="@+id/hidden_status_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/hidden_progress_signing_in"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+
+    <!-- Login form -->
+
+    <ScrollView
+            android:id="@+id/hidden_form"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+        <RelativeLayout
+                android:id="@+id/RelativeLayout1"
+                style="@style/LoginFormContainer"
+                android:layout_height="400dp"
+                android:orientation="vertical" >
+
+            <EditText
+                    android:id="@+id/h_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:hint="@string/prompt_h_name"
+                    android:inputType="textPersonName"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+            <EditText
+                    android:id="@+id/h_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@+id/h_name"
+                    android:hint="@string/prompt_hint"
+                    android:imeActionId="@+id/login"
+                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeOptions="actionUnspecified"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:inputType="text"/>
+
+            <EditText
+                    android:id="@+id/h_points"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_points"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:inputType="number"
+                    android:layout_below="@+id/h_hint"
+                    android:layout_alignParentLeft="true"/>
+
+            <Button
+                    android:id="@+id/h_create_button"
+                    android:layout_width="137dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:paddingLeft="32dp"
+                    android:paddingRight="32dp"
+                    android:text="@string/action_create_location"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignRight="@+id/loc_title"
+                    android:layout_marginBottom="21dp"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="@string/new_location_info"
+                    android:id="@+id/loc_title"
+                    android:layout_marginTop="150dp"
+                    android:textStyle="italic"
+                    android:typeface="normal"
+                    android:singleLine="false"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:id="@+id/coordinate_show"
+                    android:layout_marginTop="50dp"
+                    android:layout_below="@+id/loc_title"
+                    android:layout_centerHorizontal="true"/>
+
+        </RelativeLayout>
+    </ScrollView>
+
+</merge>

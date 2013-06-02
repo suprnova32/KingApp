@@ -19,5 +19,15 @@
     <string name="check_in_title">Please choose a check in method</string>
     <string name="refresh">Refresh</string>
     <string name="check_in_progress">Checking in</string>
+    <string name="title_activity_create_hidden_location">Submit a Location</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="hidden_progress_signing_in">Creating Location</string>
+    <string name="prompt_h_name">Name</string>
+    <string name="prompt_hint">Hint</string>
+    <string name="action_create_location">Save</string>
+    <string name="create_location">Create Hidden Location</string>
+    <string name="prompt_points">Points</string>
+    <string name="new_location_info">will be created with the following coordinates:
+    </string>
 
 </resources>
