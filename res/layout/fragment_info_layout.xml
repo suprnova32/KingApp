@@ -92,7 +92,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/locations_title"
                 android:layout_marginTop="10dp"
-                android:paddingBottom="125dp" >
+                    >
 
             </ListView>
 
